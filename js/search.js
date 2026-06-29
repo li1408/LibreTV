@@ -1,5 +1,9 @@
 async function searchByAPIAndKeyWord(apiId, query) {
     try {
+        if (apiId === 'internetarchive' && window.InternetArchiveAdapter) {
+            return await window.InternetArchiveAdapter.search(query);
+        }
+
         let apiUrl, apiName, apiBaseUrl;
         
         // 处理自定义API

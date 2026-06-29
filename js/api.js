@@ -19,6 +19,14 @@ async function handleApiRequest(url) {
             if (!API_SITES[source] && source !== 'custom') {
                 throw new Error('无效的API来源');
             }
+
+            if (source === 'internetarchive' && window.InternetArchiveAdapter) {
+                const list = await window.InternetArchiveAdapter.search(searchQuery);
+                return JSON.stringify({
+                    code: 200,
+                    list,
+                });
+            }
             
             const apiUrl = customApi
                 ? `${customApi}${API_CONFIG.search.path}${encodeURIComponent(searchQuery)}`
@@ -77,7 +85,7 @@ async function handleApiRequest(url) {
             }
             
             // 验证ID格式 - 只允许数字和有限的特殊字符
-            if (!/^[\w-]+$/.test(id)) {
+            if (!/^[\w.-]+$/.test(id)) {
                 throw new Error('无效的视频ID格式');
             }
 
@@ -88,6 +96,10 @@ async function handleApiRequest(url) {
             
             if (!API_SITES[sourceCode] && sourceCode !== 'custom') {
                 throw new Error('无效的API来源');
+            }
+
+            if (sourceCode === 'internetarchive' && window.InternetArchiveAdapter) {
+                return JSON.stringify(await window.InternetArchiveAdapter.detail(id));
             }
 
             // 对于有detail参数的源，都使用特殊处理方式

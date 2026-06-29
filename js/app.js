@@ -1,5 +1,5 @@
 // 全局变量
-let selectedAPIs = JSON.parse(localStorage.getItem('selectedAPIs') || '["bfzy","dyttzy","ruyi","wujin","zuid"]'); // 默认选中资源
+let selectedAPIs = JSON.parse(localStorage.getItem('selectedAPIs') || '["bfzy","dyttzy","ruyi","wujin","zuid","internetarchive"]'); // 默认选中资源
 let customAPIs = JSON.parse(localStorage.getItem('customAPIs') || '[]'); // 存储自定义API列表
 
 // 添加当前播放的集数索引
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 设置默认API选择（如果是第一次加载）
     if (!localStorage.getItem('hasInitializedDefaults')) {
         // 默认选中资源
-        selectedAPIs = ["bfzy", "dyttzy", "ruyi", "wujin", "zuid"];
+        selectedAPIs = ["bfzy", "dyttzy", "ruyi", "wujin", "zuid", "internetarchive"];
         localStorage.setItem('selectedAPIs', JSON.stringify(selectedAPIs));
 
         // 默认选中过滤开关
@@ -40,6 +40,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // 标记已初始化默认值
         localStorage.setItem('hasInitializedDefaults', 'true');
+    }
+
+    if (!localStorage.getItem('hasInitializedInternetArchiveSource')) {
+        if (!selectedAPIs.includes('internetarchive')) {
+            selectedAPIs.push('internetarchive');
+            localStorage.setItem('selectedAPIs', JSON.stringify(selectedAPIs));
+        }
+        localStorage.setItem('hasInitializedInternetArchiveSource', 'true');
     }
 
     // 设置黄色内容过滤器开关初始状态
@@ -732,7 +740,7 @@ async function search() {
 
         // 添加XSS保护，使用textContent和属性转义
         const safeResults = allResults.map(item => {
-            const safeId = item.vod_id ? item.vod_id.toString().replace(/[^\w-]/g, '') : '';
+            const safeId = item.vod_id ? item.vod_id.toString().replace(/[^\w.-]/g, '') : '';
             const safeName = (item.vod_name || '').toString()
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
@@ -1305,7 +1313,8 @@ async function exportConfig() {
         'yellowFilterEnabled',
         'adFilteringEnabled',
         'doubanEnabled',
-        'hasInitializedDefaults'
+        'hasInitializedDefaults',
+        'hasInitializedInternetArchiveSource'
     ];
 
     // 导出设置项
